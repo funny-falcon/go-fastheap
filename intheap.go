@@ -106,7 +106,7 @@ func (h *IntHeap) up(j int) {
 
 	for {
 		i = j/4 + 2
-		if i == j || h.getValue(i) > item.value == h.Max {
+		if i == 2 || h.getValue(i) > item.value == h.Max {
 			break
 		}
 		h.move(i, j)
@@ -144,39 +144,44 @@ func (h *IntHeap) downIndex(j int, e int64) int {
 	if j > last/4+2 {
 		return j
 	}
-	var j2 int
-	var e1, e2 int64
 
 	i1 := (j - 2) * 4
 	i2 := i1 + 1
+	i3 := i1 + 2
+	i4 := i1 + 3
 
-	e1 = h.getValue(i1)
+
+	e1 := h.getValue(i1)
+	if i2 <= last {
+		e2 := h.getValue(i2)
+		if e2 > e1 == h.Max {
+			i1 = i2
+			e1 = e2
+		}
+	}
+	if i3 <= last {
+		e3 := h.getValue(i3)
+		if i4 <= last {
+			e4 := h.getValue(i4)
+			if e4 > e3 == h.Max {
+				i3 = i4
+				e3 = e4
+			}
+		}
+		if e3 > e1 == h.Max {
+			i1 = i3
+			e1 = e3
+		}
+	}
+
 	if e1 > e == h.Max {
 		j = i1
 		e = e1
 	}
 
-	if i2 <= last {
-		if i2+1 <= last {
-			e21, e22 := h.getValue(i2), h.getValue(i2+1)
-			if e21 > e22 == h.Max {
-				j2 = i2
-				e2 = e21
-			} else {
-				j2 = i2 + 1
-				e2 = e22
-			}
-		} else {
-			j2 = i2
-			e2 = h.getValue(i2)
-		}
-		if e2 > e == h.Max {
-			j = j2
-			e = e2
-		}
-	}
 	return j
 }
+
 func (h *IntHeap) ensureRoom() {
 	if h.size > 0 {
 		if h.size&0xff == 0 && h.size>>8 == len(h.heap) {
