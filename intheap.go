@@ -5,16 +5,16 @@ type intItem struct {
 	value int64
 }
 
-/* IntHeap is a heap holding int64 bit keys. */
-/* It is minheap by default, and should be set as IntHeap{Max: true} if you want max heap */
-/* I trust you will not change Max on non-empty heap :) */
+// IntHeap is a heap holding int64 bit keys.
+// It is minheap by default, and should be set as IntHeap{Max: true} if you want max heap
+// I trust you will not change Max on non-empty heap :)
 type IntHeap struct {
 	Max  bool
 	heap []*[256]intItem
 	size int
 }
 
-/* Size returns size of a heap */
+// Size returns size of a heap
 func (h *IntHeap) Size() int {
 	if h.size >= 3 {
 		return h.size - 3
@@ -22,7 +22,7 @@ func (h *IntHeap) Size() int {
 	return 0
 }
 
-/* Top returns top item and key value of a heap (minimum if Max == false, maximum otherwise */
+// Top returns top item and key value of a heap (minimum if Max == false, maximum otherwise
 func (h *IntHeap) Top() (IntValue, int64, bool) {
 	if h.size > 3 {
 		t := h.heap[0][3]
@@ -31,10 +31,10 @@ func (h *IntHeap) Top() (IntValue, int64, bool) {
 	return nil, 0, false
 }
 
-/* Insert puts item into heap, preserving heap invariants */
+// Insert puts item into heap, preserving heap invariants
 func (h *IntHeap) Insert(tm IntValue) error {
 	if tm.Index() != 0 {
-		return InsertError
+		return ErrInsert
 	}
 
 	h.ensureRoom()
@@ -44,10 +44,10 @@ func (h *IntHeap) Insert(tm IntValue) error {
 	return nil
 }
 
-/* Remove removes item from heap, preserving heap invariants */
+// Remove removes item from heap, preserving heap invariants
 func (h *IntHeap) Remove(tm IntValue) error {
 	if tm.Index() < 3 || tm.Index() >= h.size {
-		return RemoveError
+		return ErrRemove
 	}
 
 	i := tm.Index()
@@ -63,10 +63,10 @@ func (h *IntHeap) Remove(tm IntValue) error {
 	return nil
 }
 
-/* Reset fixes position of element, if it's key value were changed */
+// Reset fixes position of element, if it's key value were changed
 func (h *IntHeap) Reset(tm IntValue) error {
 	if tm.Index() < 3 || tm.Index() >= h.size {
-		return RemoveError
+		return ErrRemove
 	}
 
 	i := tm.Index()
@@ -75,10 +75,10 @@ func (h *IntHeap) Reset(tm IntValue) error {
 	return nil
 }
 
-/* Pop removes top item from heap (minimum if Max == false, maximum otherwise) */
+// Pop removes top item from heap (minimum if Max == false, maximum otherwise)
 func (h *IntHeap) Pop() (IntValue, error) {
 	if h.size <= 3 {
-		return nil, PopError
+		return nil, ErrPop
 	}
 
 	h.size--
@@ -183,7 +183,7 @@ func (h *IntHeap) ensureRoom() {
 			h.heap = append(h.heap, &[256]intItem{})
 		}
 	} else {
-		/* initialization */
+		// initialization
 		h.heap = make([]*[256]intItem, 1)
 		h.heap[0] = &[256]intItem{}
 		h.size = 3
