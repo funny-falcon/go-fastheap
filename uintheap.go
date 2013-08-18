@@ -10,7 +10,7 @@ type uintItem struct {
 // I trust you will not change Max on non-empty heap :)
 type UintHeap struct {
 	Max  bool
-	heap []*[256]uintItem
+	heap []*[pageSize]uintItem
 	size int
 }
 
@@ -151,18 +151,18 @@ func (h *UintHeap) downIndex(j int, e uint64) int {
 	i4 := i1 + 3
 	chunk := h.getChunk(i1)
 
-	e1 := chunk[i1&0xff].value
+	e1 := chunk[i1&pageMask].value
 	if i2 <= last {
-		e2 := chunk[i2&0xff].value
+		e2 := chunk[i2&pageMask].value
 		if e2 > e1 == h.Max {
 			i1 = i2
 			e1 = e2
 		}
 	}
 	if i3 <= last {
-		e3 := chunk[i3&0xff].value
+		e3 := chunk[i3&pageMask].value
 		if i4 <= last {
-			e4 := chunk[i4&0xff].value
+			e4 := chunk[i4&pageMask].value
 			if e4 > e3 == h.Max {
 				i3 = i4
 				e3 = e4
@@ -184,20 +184,20 @@ func (h *UintHeap) downIndex(j int, e uint64) int {
 
 func (h *UintHeap) ensureRoom() {
 	if h.size > 0 {
-		if h.size&0xff == 0 && h.size>>8 == len(h.heap) {
-			h.heap = append(h.heap, &[256]uintItem{})
+		if h.size&pageMask == 0 && h.size>>pageLog == len(h.heap) {
+			h.heap = append(h.heap, &[pageSize]uintItem{})
 		}
 	} else {
 		// initialization
-		h.heap = make([]*[256]uintItem, 1)
-		h.heap[0] = &[256]uintItem{}
+		h.heap = make([]*[pageSize]uintItem, 1)
+		h.heap[0] = &[pageSize]uintItem{}
 		h.size = 3
 	}
 }
 
 func (h *UintHeap) chomp() {
-	chunks := ((h.size - 1) >> 8) + 1
-	h.heap[h.size>>8][h.size&0xff] = uintItem{}
+	chunks := ((h.size - 1) >> pageLog) + 1
+	h.heap[h.size>>pageLog][h.size&pageMask] = uintItem{}
 	if chunks+1 < len(h.heap) {
 		h.heap[len(h.heap)-1] = nil
 		h.heap = h.heap[:chunks+1]
@@ -205,28 +205,28 @@ func (h *UintHeap) chomp() {
 }
 
 func (h *UintHeap) get(i int) uintItem {
-	return h.heap[i>>8][i&0xff]
+	return h.heap[i>>pageLog][i&pageMask]
 }
 
-func (h *UintHeap) getChunk(i int) *[256]uintItem {
-	return h.heap[i>>8]
+func (h *UintHeap) getChunk(i int) *[pageSize]uintItem {
+	return h.heap[i>>pageLog]
 }
 
 func (h *UintHeap) getValue(i int) uint64 {
-	return h.heap[i>>8][i&0xff].value
+	return h.heap[i>>pageLog][i&pageMask].value
 }
 
 func (h *UintHeap) clear(i int) {
-	h.heap[i>>8][i&0xff] = uintItem{}
+	h.heap[i>>pageLog][i&pageMask] = uintItem{}
 }
 
 func (h *UintHeap) set(i int, item uintItem) {
-	h.heap[i>>8][i&0xff] = item
+	h.heap[i>>pageLog][i&pageMask] = item
 	item.ref.SetIndex(i)
 }
 
 func (h *UintHeap) move(from, to int) {
-	item := h.heap[from>>8][from&0xff]
-	h.heap[to>>8][to&0xff] = item
+	item := h.heap[from>>pageLog][from&pageMask]
+	h.heap[to>>pageLog][to&pageMask] = item
 	item.ref.SetIndex(to)
 }

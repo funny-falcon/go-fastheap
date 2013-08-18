@@ -17,3 +17,9 @@ var ErrInsert = errors.New("Could not insert heap value with index != 0")
 var ErrRemove = errors.New("Could not remove heap value with wrong index")
 // ErrPop - error returned by heap.Pop(item) if heap is empty
 var ErrPop = errors.New("Could not pop from empty heap")
+
+const (
+	pageLog = 8
+	pageSize = 1 << pageLog
+	pageMask = pageSize - 1
+)
