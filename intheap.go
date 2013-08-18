@@ -32,16 +32,20 @@ func (h *IntHeap) Top() (IntValue, int64) {
 }
 
 // Insert puts item into heap, preserving heap invariants
-func (h *IntHeap) Insert(tm IntValue) error {
+// Returns:
+//   false, err - if error were encountered (inserting item has dirty index no)
+//   false, nil - element were inserted and it's position is not at top
+//   true, nil  - element were inserted at top position
+func (h *IntHeap) Insert(tm IntValue) (bool, error) {
 	if tm.Index() != 0 {
-		return ErrInsert
+		return false, ErrInsert
 	}
 
 	h.ensureRoom()
 	h.set(h.size, intItem{ref: tm, value: tm.Value()})
 	h.size++
-	h.up(h.size - 1)
-	return nil
+	ind := h.up(h.size - 1)
+	return ind == 3, nil
 }
 
 // Remove removes item from heap, preserving heap invariants
@@ -108,11 +112,11 @@ func (h *IntHeap) PopOrTop(cut int64) (IntValue, int64, bool) {
 	return nil, 0, false
 }
 
-func (h *IntHeap) up(j int) {
+func (h *IntHeap) up(j int) int {
 	item := h.get(j)
 	i := j/4 + 2
 	if i == 2 || h.getValue(i) > item.value == h.Max {
-		return
+		return j
 	}
 	h.move(i, j)
 	j = i
@@ -127,6 +131,7 @@ func (h *IntHeap) up(j int) {
 	}
 	h.set(j, item)
 	item.ref.SetIndex(j)
+	return j
 }
 
 func (h *IntHeap) down(j int) {
