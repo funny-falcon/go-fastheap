@@ -95,6 +95,19 @@ func (h *UintHeap) Pop() (UintValue, error) {
 	return t.ref, nil
 }
 
+// PopOrTop accepts cut mark and returns top item and key value of a heap, and were item popped cause it passed the cut mark
+func (h *UintHeap) PopOrTop(cut uint64) (UintValue, uint64, bool) {
+	if h.size > 3 {
+		t := h.heap[0][3]
+		if t.value > cut == h.Max {
+			h.Pop()
+			return t.ref, t.value, true
+		}
+		return t.ref, t.value, false
+	}
+	return nil, 0, false
+}
+
 func (h *UintHeap) up(j int) {
 	item := h.get(j)
 	i := j/4 + 2
