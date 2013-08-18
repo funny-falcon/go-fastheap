@@ -39,7 +39,13 @@ func testRangeIncrease(t *testing.T, from, to int) {
 	for i := from; i < to; i++ {
 		h := IntHeap{}
 		for j := 0; j < i; j++ {
-			h.Insert(&item{val: int64(j)})
+			at_top, err := h.Insert(&item{val: int64(j)})
+			if err != nil {
+				t.Error(err)
+			}
+			if at_top && j != 0 {
+				t.Error("Inserted at top")
+			}
 		}
 		sl := popall(&h)
 		if !sort.IntsAreSorted(sl) {
@@ -52,7 +58,13 @@ func testRangeDecrease(t *testing.T, from, to int) {
 	for i := from; i < to; i++ {
 		h := IntHeap{}
 		for j := i; j > 0; j-- {
-			h.Insert(&item{val: int64(j)})
+			at_top, err := h.Insert(&item{val: int64(j)})
+			if err != nil {
+				t.Error(err)
+			}
+			if !at_top {
+				t.Error("Inserted not at top")
+			}
 		}
 		sl := popall(&h)
 		if !sort.IntsAreSorted(sl) {
