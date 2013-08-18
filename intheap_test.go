@@ -2,10 +2,11 @@ package fastheap
 
 import (
 	//. "github.com/funny-falcon/go-fastheap"
-	"testing"
-	"sort"
 	"fmt"
+	"sort"
+	"testing"
 )
+
 var _ = fmt.Print
 
 type item struct {
@@ -35,10 +36,10 @@ func popall(h *IntHeap) []int {
 }
 
 func testRangeIncrease(t *testing.T, from, to int) {
-	for i:=from; i<to; i++ {
+	for i := from; i < to; i++ {
 		h := IntHeap{}
-		for j:=0; j<i; j++ {
-			h.Insert(&item{val:int64(j)})
+		for j := 0; j < i; j++ {
+			h.Insert(&item{val: int64(j)})
 		}
 		sl := popall(&h)
 		if !sort.IntsAreSorted(sl) {
@@ -48,10 +49,10 @@ func testRangeIncrease(t *testing.T, from, to int) {
 }
 
 func testRangeDecrease(t *testing.T, from, to int) {
-	for i:=from; i<to; i++ {
+	for i := from; i < to; i++ {
 		h := IntHeap{}
-		for j:=i; j>0; j-- {
-			h.Insert(&item{val:int64(j)})
+		for j := i; j > 0; j-- {
+			h.Insert(&item{val: int64(j)})
 		}
 		sl := popall(&h)
 		if !sort.IntsAreSorted(sl) {
