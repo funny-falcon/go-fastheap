@@ -49,9 +49,13 @@ func (h *FloatHeap) Insert(tm FloatValue) (bool, error) {
 }
 
 // Remove removes item from heap, preserving heap invariants
-func (h *FloatHeap) Remove(tm FloatValue) error {
+// Returns:
+//   false, err - if error were encountered (removing item has dirty index no)
+//   false, nil - element were removed and it's position were not at top
+//   true, nil  - element were removed from top position
+func (h *FloatHeap) Remove(tm FloatValue) (bool, error) {
 	if tm.Index() < 3 || tm.Index() >= h.size {
-		return ErrRemove
+		return false, ErrRemove
 	}
 
 	i := tm.Index()
@@ -64,7 +68,7 @@ func (h *FloatHeap) Remove(tm FloatValue) error {
 		h.up(i)
 	}
 	h.chomp()
-	return nil
+	return i == 3, nil
 }
 
 // Reset fixes position of element, if it's key value were changed
