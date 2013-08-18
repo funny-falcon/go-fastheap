@@ -19,7 +19,7 @@ var ErrRemove = errors.New("Could not remove heap value with wrong index")
 var ErrPop = errors.New("Could not pop from empty heap")
 
 const (
-	pageLog = 8
+	pageLog = 7
 	pageSize = 1 << pageLog
 	pageMask = pageSize - 1
 )
