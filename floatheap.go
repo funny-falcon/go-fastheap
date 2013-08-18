@@ -23,12 +23,12 @@ func (h *FloatHeap) Size() int {
 }
 
 // Top returns top item and key value of a heap (minimum if Max == false, maximum otherwise
-func (h *FloatHeap) Top() (FloatValue, float64, bool) {
+func (h *FloatHeap) Top() (FloatValue, float64) {
 	if h.size > 3 {
 		t := h.heap[0][3]
-		return t.ref, t.value, true
+		return t.ref, t.value
 	}
-	return nil, 0, false
+	return nil, 0
 }
 
 // Insert puts item into heap, preserving heap invariants
