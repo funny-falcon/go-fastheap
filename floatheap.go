@@ -149,20 +149,20 @@ func (h *FloatHeap) downIndex(j int, e float64) int {
 	i2 := i1 + 1
 	i3 := i1 + 2
 	i4 := i1 + 3
+	chunk := h.getChunk(i1)
 
-
-	e1 := h.getValue(i1)
+	e1 := chunk[i1&0xff].value
 	if i2 <= last {
-		e2 := h.getValue(i2)
+		e2 := chunk[i2&0xff].value
 		if e2 > e1 == h.Max {
 			i1 = i2
 			e1 = e2
 		}
 	}
 	if i3 <= last {
-		e3 := h.getValue(i3)
+		e3 := chunk[i3&0xff].value
 		if i4 <= last {
-			e4 := h.getValue(i4)
+			e4 := chunk[i4&0xff].value
 			if e4 > e3 == h.Max {
 				i3 = i4
 				e3 = e4
@@ -197,16 +197,19 @@ func (h *FloatHeap) ensureRoom() {
 
 func (h *FloatHeap) chomp() {
 	chunks := ((h.size - 1) >> 8) + 1
+	h.heap[h.size>>8][h.size&0xff] = floatItem{}
 	if chunks+1 < len(h.heap) {
 		h.heap[len(h.heap)-1] = nil
 		h.heap = h.heap[:chunks+1]
-	} else {
-		h.heap[h.size>>8][h.size&0xff] = floatItem{}
 	}
 }
 
 func (h *FloatHeap) get(i int) floatItem {
 	return h.heap[i>>8][i&0xff]
+}
+
+func (h *FloatHeap) getChunk(i int) *[256]floatItem {
+	return h.heap[i>>8]
 }
 
 func (h *FloatHeap) getValue(i int) float64 {
