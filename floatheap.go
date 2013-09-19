@@ -22,6 +22,11 @@ func (h *FloatHeap) Size() int {
 	return 0
 }
 
+// Empty returns true when heap is empty
+func (h *FloatHeap) Empty() bool {
+	return h.Size() == 0
+}
+
 // Top returns top item and key value of a heap (minimum if Max == false, maximum otherwise
 func (h *FloatHeap) Top() (FloatValue, float64) {
 	if h.size > 3 {
@@ -96,8 +101,6 @@ func (h *FloatHeap) Pop() (FloatValue, error) {
 	if l > 3 {
 		h.move(l, 3)
 		h.down(3)
-	} else {
-		h.size--
 	}
 	h.chomp()
 	return t.ref, nil
