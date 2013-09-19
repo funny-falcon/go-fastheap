@@ -14,6 +14,15 @@ type IntHeap struct {
 	size int
 }
 
+type IntInterface interface {
+	Size() int
+	Empty() bool
+	Top() (IntValue, int64)
+	Insert(IntValue) (bool, error)
+	//Remove(IntValue) (bool, error)
+	Pop() (IntValue, error)
+}
+
 // Size returns size of a heap
 func (h *IntHeap) Size() int {
 	if h.size >= 3 {
@@ -221,12 +230,12 @@ func (h *IntHeap) ensureRoom() {
 }
 
 func (h *IntHeap) chomp() {
-	chunks := ((h.size - 1) >> pageLog) + 1
+	//chunks := ((h.size - 1) >> pageLog) + 1
 	h.heap[h.size>>pageLog][h.size&pageMask] = intItem{}
-	if chunks+1 < len(h.heap) {
+	/*if chunks+1 < len(h.heap) {
 		h.heap[len(h.heap)-1] = nil
 		h.heap = h.heap[:chunks+1]
-	}
+	}*/
 }
 
 func (h *IntHeap) get(i int) intItem {
