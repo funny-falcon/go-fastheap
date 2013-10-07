@@ -63,33 +63,72 @@ func (h *ArrInt) Pop() (res IntValue, err error) {
 	if h.size == 0 {
 		return nil, ErrPop
 	}
-	top := h.at(h.top)
-	res = top.ref
-	res.SetIndex(0)
+	res = h.at(h.top).ref
+	h.delete(h.top)
+	return res, nil
+}
+func (h *ArrInt) Remove(tm IntValue) (bool, error) {
+	i := uint32(tm.Index())
+	if i < 1 || i > h.len {
+		return false, ErrRemove
+	}
+	attop := i == h.top
+	h.delete(i)
+	return attop, nil
+}
+
+func (h *ArrInt) delete(at uint32) {
+	t := h.at(at)
+	t.ref.SetIndex(0)
 	curfree := h.free
-	h.free = h.top
+	h.free = at
 	h.size--
-	if top.down[0] != 0 {
-		if top.down[1] == 0 {
-			h.top = top.down[0]
-		} else if top.down[2] == 0 {
-			if h.at(top.down[1]).value < h.at(top.down[0]).value {
-				h.putUnder(top.down[1], top.down[0])
-				h.top = top.down[1]
+	var downi uint32
+	if t.down[0] != 0 {
+		if t.down[1] == 0 {
+			downi = t.down[0]
+		} else if t.down[2] == 0 {
+			if h.at(t.down[1]).value < h.at(t.down[0]).value {
+				h.putUnder(t.down[1], t.down[0])
+				downi = t.down[1]
 			} else {
-				h.putUnder(top.down[0], top.down[1])
-				h.top = top.down[0]
+				h.putUnder(t.down[0], t.down[1])
+				downi = t.down[0]
 			}
 		} else {
-			h.sort2(top)
-			h.putUnder(top.down[1], top.down[2])
-			h.putUnder(top.down[0], top.down[1])
-			h.top = top.down[0]
+			h.sort2(t)
+			h.putUnder(t.down[1], t.down[2])
+			h.putUnder(t.down[0], t.down[1])
+			downi = t.down[0]
 		}
 	} else {
-		h.top = 0
+		downi = 0
 	}
-	*top = intArr{up: curfree}
+	if at == h.top {
+		h.top = downi
+		h.at(downi).up = 0
+	} else if downi == 0 {
+		up := h.at(t.up)
+		if up.down[0] == at {
+			up.down[0], up.down[1], up.down[2] =
+				up.down[1], up.down[2], 0
+		} else if up.down[1] == at {
+			up.down[1], up.down[2] = up.down[2], 0
+		} else {
+			up.down[2] = 0
+		}
+	} else {
+		up := h.at(t.up)
+		h.at(downi).up = t.up
+		if up.down[0] == at {
+			up.down[0] = downi
+		} else if up.down[1] == at {
+			up.down[1] = downi
+		} else {
+			up.down[2] = downi
+		}
+	}
+	*t = intArr{up: curfree}
 	return
 }
 
