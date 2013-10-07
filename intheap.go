@@ -1,5 +1,9 @@
 package fastheap
 
+import "fmt"
+
+var _ = fmt.Print
+
 type intItem struct {
 	ref   IntValue
 	value int64
@@ -19,7 +23,7 @@ type IntInterface interface {
 	Empty() bool
 	Top() (IntValue, int64)
 	Insert(IntValue) (bool, error)
-	//Remove(IntValue) (bool, error)
+	//	Remove(IntValue) (bool, error)
 	Pop() (IntValue, error)
 }
 
@@ -151,69 +155,53 @@ func (h *IntHeap) up(j int) int {
 }
 
 func (h *IntHeap) down(j int) {
-	var i int
-
 	item := h.get(j)
+	last := h.size - 1
 
-	if i = h.downIndex(j, item.value); i == j {
-		return
-	}
-	h.move(i, j)
-	j = i
-
+	chunkj := h.getChunk(j)
 	for {
-		i = h.downIndex(j, item.value)
-		if i == j {
+		i1 := (j - 2) * 4
+		i3 := i1 + 2
+		if i1 > last {
 			break
 		}
-		h.move(i, j)
-		j = i
-	}
-	h.set(j, item)
-	item.ref.SetIndex(j)
-}
 
-func (h *IntHeap) downIndex(j int, e int64) int {
-	last := h.size - 1
-	if j > last/4+2 {
-		return j
-	}
+		chunk := h.getChunk(i1)
 
-	i1 := (j - 2) * 4
-	i2 := i1 + 1
-	i3 := i1 + 2
-	i4 := i1 + 3
-	chunk := h.getChunk(i1)
-
-	e1 := chunk[i1&pageMask].value
-	if i2 <= last {
-		e2 := chunk[i2&pageMask].value
-		if e2 > e1 == h.Max {
-			i1 = i2
-			e1 = e2
-		}
-	}
-	if i3 <= last {
-		e3 := chunk[i3&pageMask].value
-		if i4 <= last {
-			e4 := chunk[i4&pageMask].value
-			if e4 > e3 == h.Max {
-				i3 = i4
-				e3 = e4
+		e1 := chunk[i1&pageMask].value
+		if i1+1 <= last {
+			e2 := chunk[(i1+1)&pageMask].value
+			if e2 < e1 {
+				i1++
+				e1 = e2
 			}
 		}
-		if e3 > e1 == h.Max {
-			i1 = i3
-			e1 = e3
+		if i3 <= last {
+			e3 := chunk[i3&pageMask].value
+			if i3+1 <= last {
+				e4 := chunk[(i3+1)&pageMask].value
+				if e4 < e3 {
+					i3++
+					e3 = e4
+				}
+			}
+			if e3 < e1 {
+				i1 = i3
+				e1 = e3
+			}
 		}
-	}
 
-	if e1 > e == h.Max {
+		if e1 >= item.value {
+			break
+		}
+
+		chunkj[j&pageMask] = chunk[i1&pageMask]
+		chunkj[j&pageMask].ref.SetIndex(j)
+		chunkj = chunk
 		j = i1
-		e = e1
 	}
-
-	return j
+	chunkj[j&pageMask] = item
+	item.ref.SetIndex(j)
 }
 
 func (h *IntHeap) ensureRoom() {
